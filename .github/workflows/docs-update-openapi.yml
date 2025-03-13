@@ -2,9 +2,8 @@ name: Update OpenAPI Spec
 
 on:
   schedule:
-    # - cron: "0 20 * * 1"
-    - cron: '*/5 * * * *'  # Every 5 minutes
-  workflow_dispatch:  # Allow manual trigger
+    - cron: "0 20 * * 1" # Monday 4pm EST
+  workflow_dispatch:     # Allow manual trigger
 
 permissions:
   contents: write
@@ -60,7 +59,7 @@ jobs:
           # Verify file was created
           ls -la new_openapi.json
 
-          # Optionally stop the container when done
+          # stop the container when done
           docker stop langflow
 
       - name: Compare OpenAPI files
@@ -105,7 +104,7 @@ jobs:
 
       - name: Create Pull Request
         if: env.NEEDS_UPDATE == 'true' && steps.check_pull_request.outputs.pr_exists != 'true'
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "docs: OpenAPI spec ${{ env.UPDATE_REASON }}"
@@ -118,3 +117,4 @@ jobs:
           branch: update-openapi-spec
           branch-suffix: timestamp
           delete-branch: true
+          reviewers: mlr
