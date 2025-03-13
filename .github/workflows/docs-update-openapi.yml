@@ -108,7 +108,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "docs: update OpenAPI spec ${{ env.UPDATE_REASON }}"
-          title: "docs: Update OpenAPI spec ${{ env.UPDATE_REASON }}"
+          title: "docs: update OpenAPI spec ${{ env.UPDATE_REASON }}"
           body: |
             This PR updates the OpenAPI spec.
 
