@@ -11,7 +11,7 @@
           "Chat"
         ],
         "summary": "Retrieve Vertices Order",
-        "description": "Retrieve the vertices order for a given flow_id.\n\nArgs:\n    flow_id (str): The ID of the flow.\n    background_tasks (BackgroundTasks): The background tasks.\n    data (Optional[FlowDataRequest], optional): The flow data. Defaults to None.\n    stop_component_id (str, optional): The ID of the stop component. Defaults to None.\n    start_component_id (str, optional): The ID of the start component. Defaults to None.\n    session (AsyncSession, optional): The session dependency.\n\nReturns:\n    VerticesOrderResponse: The response containing the ordered vertex IDs and the run ID.\n\nRaises:\n    HTTPException: If there is an error checking the build status.",
+        "description": "Retrieve the vertices order for a given flow.\n\nArgs:\n    flow_id (str): The ID of the flow.\n    background_tasks (BackgroundTasks): The background tasks.\n    data (Optional[FlowDataRequest], optional): The flow data. Defaults to None.\n    stop_component_id (str, optional): The ID of the stop component. Defaults to None.\n    start_component_id (str, optional): The ID of the start component. Defaults to None.\n    session (AsyncSession, optional): The session dependency.\n\nReturns:\n    VerticesOrderResponse: The response containing the ordered vertex IDs and the run ID.\n\nRaises:\n    HTTPException: If there is an error checking the build status.",
         "operationId": "retrieve_vertices_order_api_v1_build__flow_id__vertices_post",
         "deprecated": true,
         "parameters": [
