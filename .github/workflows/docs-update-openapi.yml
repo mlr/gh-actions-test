@@ -23,7 +23,7 @@ jobs:
       - name: Check if there is already an open pull request
         id: check_pull_request
         run: |
-          if [[ -n $(gh pr list --state open --repo ${{ github.repository }} | grep "Update OpenAPI spec") ]]; then
+          if [[ -n $(gh pr list --state open --repo ${{ github.repository }} | grep "docs: update OpenAPI spec") ]]; then
             echo "There is already an open PR with updates to the OpenAPI spec. Merge or close that PR first. Skipping."
             echo "pr_exists=true" >> $GITHUB_OUTPUT
           else
