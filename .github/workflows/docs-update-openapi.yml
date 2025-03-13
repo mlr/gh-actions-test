@@ -2,7 +2,7 @@ name: Update OpenAPI Spec
 
 on:
   schedule:
-    - cron: "0 20 * * *"
+    - cron: "0 20 * * 1"
   workflow_dispatch:  # Allow manual trigger
 
 permissions:
@@ -23,7 +23,7 @@ jobs:
       - name: Check if there is already an open pull request
         id: check_pull_request
         run: |
-          if [[ -n $(gh pr list --state open --repo ${{ github.repository }} | grep "docs: update OpenAPI spec") ]]; then
+          if [[ -n $(gh pr list --state open --repo ${{ github.repository }} | grep "docs: OpenAPI spec") ]]; then
             echo "There is already an open PR with updates to the OpenAPI spec. Merge or close that PR first. Skipping."
             echo "pr_exists=true" >> $GITHUB_OUTPUT
           else
@@ -107,8 +107,8 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "docs: update OpenAPI spec ${{ env.UPDATE_REASON }}"
-          title: "docs: update OpenAPI spec ${{ env.UPDATE_REASON }}"
+          commit-message: "docs: OpenAPI spec ${{ env.UPDATE_REASON }}"
+          title: "docs: OpenAPI spec ${{ env.UPDATE_REASON }}"
           body: |
             This PR updates the OpenAPI spec.
 
