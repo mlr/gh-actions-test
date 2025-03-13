@@ -66,17 +66,6 @@ jobs:
         if: steps.check_pull_request.outputs.pr_exists != 'true'
         id: compare
         run: |
-          # Check if docs/openapi.json exists
-          if [ ! -f "docs/openapi.json" ]; then
-            echo "Current OpenAPI spec file not found. Will create a new one."
-            mkdir -p docs
-            cp new_openapi.json docs/openapi.json
-            echo "NEEDS_UPDATE=true" >> $GITHUB_ENV
-            echo "NEW_VERSION=$(jq -r '.info.version' new_openapi.json)" >> $GITHUB_ENV
-            echo "UPDATE_REASON=Initial OpenAPI spec creation" >> $GITHUB_ENV
-            exit 0
-          fi
-
           # Extract versions
           NEW_VERSION=$(jq -r '.info.version' new_openapi.json)
           CURRENT_VERSION=$(jq -r '.info.version' docs/openapi.json)
@@ -96,22 +85,22 @@ jobs:
               echo "New version detected. Creating PR."
               echo "NEEDS_UPDATE=true" >> $GITHUB_ENV
               echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-              echo "UPDATE_REASON=Version upgraded from $CURRENT_VERSION to $NEW_VERSION" >> $GITHUB_ENV
+              echo "UPDATE_REASON=version upgraded from $CURRENT_VERSION to $NEW_VERSION" >> $GITHUB_ENV
             else
               echo "File content changed but version remains the same. Creating PR."
               echo "NEEDS_UPDATE=true" >> $GITHUB_ENV
               echo "NEW_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
-              echo "UPDATE_REASON=Content updated without version change" >> $GITHUB_ENV
+              echo "UPDATE_REASON=content updated without version change" >> $GITHUB_ENV
             fi
 
-            cp new_openapi.json docs/openapi.json
+            cat new_openapi.json | jq > docs/openapi.json
           else
             echo "No changes detected in OpenAPI spec content."
             echo "NEEDS_UPDATE=false" >> $GITHUB_ENV
           fi
 
           # Clean up
-          rm sorted_new.json sorted_current.json
+          rm new_openapi.json sorted_new.json sorted_current.json
 
       - name: Create Pull Request
         if: env.NEEDS_UPDATE == 'true' && steps.check_pull_request.outputs.pr_exists != 'true'
@@ -119,14 +108,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "docs: update OpenAPI spec ${{ env.UPDATE_REASON }}"
-          title: "Update OpenAPI spec ${{ env.UPDATE_REASON }}"
+          title: "docs: Update OpenAPI spec ${{ env.UPDATE_REASON }}"
           body: |
             This PR updates the OpenAPI spec.
 
             Update reason: ${{ env.UPDATE_REASON }}
             Version: ${{ env.NEW_VERSION }}
-
-            This is an automated PR created by the GitHub Actions workflow.
           branch: update-openapi-spec
           branch-suffix: timestamp
           delete-branch: true
