@@ -1,13 +1,13 @@
 name: Update OpenAPI Spec
 
-on:
-  # schedule:
-  #   - cron: '0 0 * * 1'  # Run weekly on Mondays
-  workflow_dispatch:  # Allow manual trigger
-
 permissions:
   contents: write
   pull-requests: write
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Run weekly on Mondays
+  workflow_dispatch:  # Allow manual trigger
 
 jobs:
   check-openapi-updates:
@@ -54,10 +54,11 @@ jobs:
 
           # Get the OpenAPI spec and save to file
           echo "Fetching OpenAPI spec..."
-          curl -s http://localhost:7860/openapi.json > new_openapi.json
+          mkdir -p docs
+          curl -s http://localhost:7860/openapi.json > docs/openapi.json.new
 
           # Verify file was created
-          ls -la new_openapi.json
+          ls -la docs/openapi.json.new
 
           # Optionally stop the container when done
           docker stop langflow
@@ -69,23 +70,22 @@ jobs:
           # Check if docs/openapi.json exists
           if [ ! -f "docs/openapi.json" ]; then
             echo "Current OpenAPI spec file not found. Will create a new one."
-            mkdir -p docs
-            cp new_openapi.json docs/openapi.json
+            mv docs/openapi.json.new docs/openapi.json
             echo "NEEDS_UPDATE=true" >> $GITHUB_ENV
-            echo "NEW_VERSION=$(jq -r '.info.version' new_openapi.json)" >> $GITHUB_ENV
+            echo "NEW_VERSION=$(jq -r '.info.version' docs/openapi.json)" >> $GITHUB_ENV
             echo "UPDATE_REASON=Initial OpenAPI spec creation" >> $GITHUB_ENV
             exit 0
           fi
 
           # Extract versions
-          NEW_VERSION=$(jq -r '.info.version' new_openapi.json)
+          NEW_VERSION=$(jq -r '.info.version' docs/openapi.json.new)
           CURRENT_VERSION=$(jq -r '.info.version' docs/openapi.json)
 
           echo "Current version: $CURRENT_VERSION"
           echo "New version: $NEW_VERSION"
 
           # Compare file content (normalize by sorting keys)
-          jq --sort-keys . new_openapi.json > sorted_new.json
+          jq --sort-keys . docs/openapi.json.new > sorted_new.json
           jq --sort-keys . docs/openapi.json > sorted_current.json
 
           if ! cmp -s sorted_new.json sorted_current.json; then
@@ -104,14 +104,15 @@ jobs:
               echo "UPDATE_REASON=Content updated without version change" >> $GITHUB_ENV
             fi
 
-            cp new_openapi.json docs/openapi.json
+            mv docs/openapi.json.new docs/openapi.json
           else
             echo "No changes detected in OpenAPI spec content."
             echo "NEEDS_UPDATE=false" >> $GITHUB_ENV
+            rm docs/openapi.json.new
           fi
 
           # Clean up
-          rm sorted_new.json sorted_current.json
+          rm -f sorted_new.json sorted_current.json
 
       - name: Create Pull Request
         if: env.NEEDS_UPDATE == 'true' && steps.check_pull_request.outputs.pr_exists != 'true'
