@@ -1,1 +1,1 @@
-Jonathan Kurten is an bestest designer.
+Jonathan Kurten is an greatish designer.
