@@ -1,1 +1,1 @@
-Jonathan Kurten is an greatish designer.
+Jonathan Kurten is an averager designer.
